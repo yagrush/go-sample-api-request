@@ -9,48 +9,15 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
 	"strings"
+
+	"github.com/yagrush/go-sample-api-request/util"
 )
 
 const (
 	formElementNameFile = "file"
 	httpMethodPost      = "POST"
 )
-
-func getAbsFilePath(filePath string) string {
-	absPath, err := filepath.Abs(filePath)
-	if err != nil {
-		panic(err)
-	}
-	return absPath
-}
-
-func openFile(filePath string) *os.File {
-	r, err := os.Open(getAbsFilePath(filePath))
-	if err != nil {
-		panic(err)
-	}
-	return r
-}
-
-func readFile(filePath string) string {
-	r, err := os.ReadFile(getAbsFilePath(filePath))
-	if err != nil {
-		panic(err)
-	}
-	return string(r)
-}
-
-func getOpenAPIToken(path string) (string, error) {
-	token := readFile(path)
-
-	reg := regexp.MustCompile(`[^\w+]`)
-
-	return reg.ReplaceAllString(string(token), ""), nil
-}
 
 func main() {
 	urlBase := flag.String("urlBase", "https://hogehoge.com/uploadFile?token=%s", "url base")
@@ -59,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	// url
-	token, err := getOpenAPIToken(*pathOpenAPITokenFile)
+	token, err := util.GetOpenAPIToken(*pathOpenAPITokenFile)
 	if err != nil {
 		panic(err)
 	}
@@ -84,7 +51,7 @@ func requestFileUpload(url, filePath string) (string, error) {
 	var body bytes.Buffer
 	bodyWriter := multipart.NewWriter(&body)
 
-	file := openFile(filePath)
+	file := util.OpenFile(filePath)
 	defer file.Close()
 
 	// ファイルを添付する
@@ -136,7 +103,7 @@ func requestFileUpload(url, filePath string) (string, error) {
 	var response ThisResponse
 	json.Unmarshal(resBody, &response)
 
-	return response.Data.FileId, nil
+	return response.Data.FileId, err
 }
 
 type ThisResponse struct {
