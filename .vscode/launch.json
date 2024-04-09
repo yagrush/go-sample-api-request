@@ -10,6 +10,16 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/sample/main.go"
+    },
+    {
+      "name": "Launch sample test main",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceRoot}/cmd/sample/main_test.go",
+      "env": {},
+      "args": ["-test.v"],
+      "showLog": true
     }
   ]
 }
